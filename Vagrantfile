@@ -56,16 +56,18 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
       trusty.vm.provision "shell", inline: <<-SHELL
           # Install PostgreSQL
           sudo sh -c 'echo "deb http://apt.postgresql.org/pub/repos/apt/ $(lsb_release -cs)-pgdg main" > /etc/apt/sources.list.d/pgdg.list'
-          sudo apt-get install wget ca-certificates
+          sudo apt-get install wget ca-certificates git
           wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | sudo apt-key add -
-          sudo apt-get update && sudo apt-get install -y postgresql-9.5 postgresql-client-9.5 postgresql-contrib-9.5
-          
+          sudo apt-get update && sudo apt-get install -y postgresql-9.5 postgresql-client-9.5 postgresql-contrib-9.5 postgresql-server-dev-9.5 
+          # Install Redis
+          sudo apt-get install -y redis-server libhiredis-dev
+
           # let PostgreSQL listen on all devices
           sed -i "s|.*listen_addresses.*|listen_addresses = '*'|g" /etc/postgresql/9.5/main/postgresql.conf
-          
+
           # allow access also from local machine
           echo "host    all          all         10.0.2.2/24      md5" >> /etc/postgresql/9.5/main/pg_hba.conf
-          
+
           # restart PostgreSQL service
           service postgresql restart
       SHELL
